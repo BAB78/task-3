@@ -18,7 +18,7 @@ interface_commands = [
     'interface Loopback0',
     'ip address 10.0.0.1 255.255.255.255',
     'interface GigabitEthernet0/0',
-    'ip address 192.168.1.1 255.255.255.0',
+    'ip address 192.168.56.101 255.255.255.0',
 ]
 
 net_connect.send_config_set(interface_commands)
@@ -27,7 +27,7 @@ net_connect.send_config_set(interface_commands)
 ospf_commands = [
     'router ospf 1',
     'network 10.0.0.0 0.255.255.255 area 0',
-    'network 192.168.1.0 0.0.0.255 area 0',
+    'network 192.168.56.0 0.0.0.255 area 0',
 ]
 
 net_connect.send_config_set(ospf_commands)
