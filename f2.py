@@ -51,7 +51,11 @@ while retry < max_retries:
     except NetmikoTimeoutException as timeout_error:
         print(f"Attempt {retry + 1} timed out: {timeout_error}")
         retry += 1
-        time.sleep(5)  # Wait for a while before retrying
+        if retry == max_retries:
+            print("Maximum retries exceeded. Script ending.")
+        else:
+            print("Retrying...")
+            time.sleep(5)  # Wait for a while before retrying
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
