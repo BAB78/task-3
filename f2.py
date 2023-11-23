@@ -1,11 +1,3 @@
-fix this errors
-Connection attempt 1...
-Attempt 1 timed out: Connection to device timed-out: cisco_ios 192.168.56.101:22
-Connection attempt 2...
-Attempt 2 timed out: Connection to device timed-out: cisco_ios 192.168.56.101:22
-Connection attempt 3...
-Attempt 3 timed out: Connection to device timed-out: cisco_ios 192.168.56.101:22
-
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException, NetmikoAuthenticationException
 import time
