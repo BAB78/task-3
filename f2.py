@@ -1,10 +1,7 @@
-error message 
-Connecting to the router...
-Connection to device timed out: Connection to device timed-out: cisco_ios 192.168.56.101:22
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException, NetmikoAuthenticationException
+import time
 
-# Define the router details
 router = {
     'device_type': 'cisco_ios',
     'ip': '192.168.56.101',
@@ -12,49 +9,51 @@ router = {
     'password': 'cisco123!',
 }
 
-try:
-    # Connect to the router
-    print("Connecting to the router...")
-    net_connect = ConnectHandler(**router)
-    net_connect.enable()
-    print("Connection established!")
+max_retries = 3  # Define the maximum number of connection retries
+retry = 0
 
-    # i. Configure Loopback and an additional interface with IP addresses
-    interface_commands = [
-        'interface Loopback0',
-        'ip address 10.0.0.1 255.255.255.255',
-        'interface GigabitEthernet0/1',
-        'ip address 192.168.56.101 255.255.255.0',
-    ]
+while retry < max_retries:
+    try:
+        print(f"Connection attempt {retry + 1}...")
+        net_connect = ConnectHandler(**router)
+        net_connect.enable()
 
-    print("Configuring interfaces...")
-    output = net_connect.send_config_set(interface_commands)
-    print("Interfaces configured!")
+        interface_commands = [
+            'interface Loopback0',
+            'ip address 10.0.0.1 255.255.255.255',
+            'interface GigabitEthernet0/1',
+            'ip address 192.168.56.101 255.255.255.0',
+        ]
+        print("Configuring interfaces...")
+        net_connect.send_config_set(interface_commands)
 
-    # ii. Configure OSPF
-    ospf_commands = [
-        'router ospf 1',
-        'network 10.0.0.1 0.0.0.0 area 0',
-        'network 192.168.56.0 0.0.0.255 area 0',
-    ]
+        # Configure OSPF
+        ospf_commands = [
+            'router ospf 1',
+            'network 10.0.0.1 0.0.0.0 area 0',
+            'network 192.168.56.0 0.0.0.255 area 0',
+        ]
+        print("Configuring OSPF...")
+        net_connect.send_config_set(ospf_commands)
 
-    print("Configuring OSPF...")
-    output = net_connect.send_config_set(ospf_commands)
-    print("OSPF configured!")
+        print("Configured Loopback0 with IP address 10.0.0.1/32")
 
-    # iii. Print Loopback configuration
-    print("Configured Loopback0 with IP address 10.0.0.1/32")
+        print("Disconnecting from the router...")
+        net_connect.disconnect()
+        print("Disconnected!")
 
-    # Disconnect from the router
-    print("Disconnecting from the router...")
-    net_connect.disconnect()
-    print("Disconnected!")
+        break  # Connection succeeded, exit loop
 
-except NetmikoAuthenticationException as auth_error:
-    print(f"Authentication failed: {auth_error}")
+    except NetmikoAuthenticationException as auth_error:
+        print(f"Authentication failed: {auth_error}")
+        break  # Break the loop, as authentication issue won't resolve with retries
 
-except NetmikoTimeoutException as timeout_error:
-    print(f"Connection to device timed out: {timeout_error}")
+    except NetmikoTimeoutException as timeout_error:
+        print(f"Attempt {retry + 1} timed out: {timeout_error}")
+        retry += 1
+        time.sleep(5)  # Wait for a while before retrying
 
-except Exception as e:
-    print(f"An error occurred: {str(e)}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        break  # Break the loop for other unhandled exceptions
+
