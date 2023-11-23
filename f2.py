@@ -1,3 +1,32 @@
+Traceback (most recent call last):
+  File "/home/devasc/.local/lib/python3.8/site-packages/paramiko/channel.py", line 699, in recv
+    out = self.in_buffer.read(nbytes, self.timeout)
+  File "/home/devasc/.local/lib/python3.8/site-packages/paramiko/buffered_pipe.py", line 164, in read
+    raise PipeTimeout()
+paramiko.buffered_pipe.PipeTimeout
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/devasc/.local/lib/python3.8/site-packages/netmiko/base_connection.py", line 550, in _read_channel_expect
+    new_data = self.remote_conn.recv(MAX_BUFFER)
+  File "/home/devasc/.local/lib/python3.8/site-packages/paramiko/channel.py", line 701, in recv
+    raise socket.timeout()
+socket.timeout
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/devasc/labs/prne/task.py", line 44, in <module>
+    net_connect.send_config_set(acl_commands)
+  File "/home/devasc/.local/lib/python3.8/site-packages/netmiko/base_connection.py", line 1757, in send_config_set
+    new_output = self.read_until_pattern(pattern=re.escape(cmd.strip()))
+  File "/home/devasc/.local/lib/python3.8/site-packages/netmiko/base_connection.py", line 627, in read_until_pattern
+    return self._read_channel_expect(*args, **kwargs)
+  File "/home/devasc/.local/lib/python3.8/site-packages/netmiko/base_connection.py", line 560, in _read_channel_expect
+    raise NetmikoTimeoutException(
+netmiko.ssh_exception.NetmikoTimeoutException: Timed-out reading channel, data not available.
+
 from netmiko import ConnectHandler
 
 # Define the router details
